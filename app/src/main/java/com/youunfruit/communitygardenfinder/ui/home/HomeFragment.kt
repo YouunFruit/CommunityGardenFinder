@@ -1,19 +1,24 @@
 package com.youunfruit.communitygardenfinder.ui.home
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.youunfruit.communitygardenfinder.GardenInfo
 import com.youunfruit.communitygardenfinder.R
 import com.youunfruit.communitygardenfinder.databinding.FragmentHomeBinding
+import org.maplibre.android.annotations.Marker
 import org.maplibre.android.annotations.MarkerOptions
 import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.maps.MapView
@@ -34,6 +39,32 @@ class HomeFragment : Fragment() {
         } else {
             getUserLocation()
         }
+    }
+    private fun setupCustomInfoWindow() {
+        mapLibreMap.setInfoWindowAdapter(object : MapLibreMap.InfoWindowAdapter {
+            override fun getInfoWindow(marker: Marker): View? {
+                // Inflate custom layout
+                val view = LayoutInflater.from(context).inflate(R.layout.garden_info_window, null)
+                val title = view.findViewById<TextView>(R.id.info_window_title)
+                val snippet = view.findViewById<TextView>(R.id.info_window_snippet)
+                val button = view.findViewById<Button>(R.id.info_window_button)
+
+                // Set marker title and snippet
+                title.text = marker.title
+                snippet.text = marker.snippet
+
+                // Set button click listener
+                button.setOnClickListener {
+                    // Handle button click event
+                    // For example, show a toast or open a new activity
+                    val intent = Intent(requireContext(), GardenInfo::class.java)
+                    intent.putExtra("PLACE_ID", marker.title as String)
+                    startActivity(intent)
+                }
+
+                return view
+            }
+        })
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -78,6 +109,7 @@ class HomeFragment : Fragment() {
             // Set the map style
             mapLibreMap.setStyle("https://api.maptiler.com/maps/basic-v2/style.json?key=HqnxDZmNRf6yheBaVLt9") {
                 // Add any map customizations here if needed
+                setupCustomInfoWindow()
                 fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
                 checkLocationPermission()
             }

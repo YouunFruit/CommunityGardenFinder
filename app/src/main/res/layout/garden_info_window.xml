@@ -1,0 +1,34 @@
+<!-- res/layout/custom_info_window.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="10dp"
+    android:background="@drawable/garden_window_background"
+    android:elevation="4dp">
+
+    <TextView
+        android:id="@+id/info_window_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:text="Title"
+        android:textSize="16sp"
+        android:textColor="#000000" />
+
+    <TextView
+        android:id="@+id/info_window_snippet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Snippet"
+        android:textSize="14sp"
+        android:textColor="#000000" />
+
+    <Button
+        android:id="@+id/info_window_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="More Info"
+        android:backgroundTint="#6200EE"
+        android:textColor="#FFFFFF" />
+</LinearLayout>
