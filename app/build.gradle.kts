@@ -39,6 +39,8 @@ android {
 }
 
 dependencies {
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("org.maplibre.gl:android-sdk:11.6.1")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
