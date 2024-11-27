@@ -105,20 +105,6 @@ class MapFragment : Fragment() {
                     callback.onSuccess(it)  // Notify success with the data
                 }
                 Log.d("GardenApp", "Gardens received: $gardens")
-
-                // Switch to the main thread to update the UI (add markers)
-                withContext(Dispatchers.Main) {
-                    for (garden in gardens) {
-                        val gardenLocation = LatLng(garden.latitude, garden.longitude)
-
-                        val marker = MarkerOptions()
-                            .position(gardenLocation)
-                            .title(garden.name)
-                            .snippet(garden.description)
-
-                        mapLibreMap.addMarker(marker)
-                    }
-                }
             } catch (e: Exception) {
                 Log.e("GardenApp", "Error: ${e.message}")
             }
@@ -146,6 +132,28 @@ class MapFragment : Fragment() {
                 setupCustomInfoWindow()
                 fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
                 checkLocationPermission()
+                setGardensLocation(object : DataCallback<List<Garden>> {
+                    override suspend fun onSuccess(data: List<Garden>) {
+                        // Handle success, e.g., add markers to the map
+                        withContext(Dispatchers.Main) {
+                            for (garden in data) {
+                                val gardenLocation = LatLng(garden.latitude, garden.longitude)
+
+                                val marker = MarkerOptions()
+                                    .position(gardenLocation)
+                                    .title(garden.name)
+                                    .snippet(garden.description)
+
+                                mapLibreMap.addMarker(marker)
+                            }
+                        }
+                    }
+
+                    override fun onFailure(errorMessage: String) {
+                        // Handle failure, show an error message
+                        Toast.makeText(requireContext(), "Error: $errorMessage", Toast.LENGTH_SHORT).show()
+                    }
+                })
             }
 
             // Move the camera to an initial location
