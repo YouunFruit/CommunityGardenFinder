@@ -1,10 +1,10 @@
-package com.youunfruit.communitygardenfinder.ui.home
+package com.youunfruit.communitygardenfinder.ui.map
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class HomeViewModel : ViewModel() {
+class MapViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
         value = "This is map Fragment"

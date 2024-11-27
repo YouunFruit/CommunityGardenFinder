@@ -1,9 +1,10 @@
-package com.youunfruit.communitygardenfinder.ui.home
+package com.youunfruit.communitygardenfinder.ui.map
 
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,21 +13,25 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.youunfruit.communitygardenfinder.GardenInfo
 import com.youunfruit.communitygardenfinder.R
-import com.youunfruit.communitygardenfinder.databinding.FragmentHomeBinding
+import com.youunfruit.communitygardenfinder.network.DataCallback
+import com.youunfruit.communitygardenfinder.network.RetrofitInstance
+import com.youunfruit.communitygardenfinder.objects.Garden
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.maplibre.android.annotations.Marker
 import org.maplibre.android.annotations.MarkerOptions
 import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.maps.MapView
-import org.maplibre.android.maps.Style
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.camera.CameraUpdateFactory
 
-class HomeFragment : Fragment() {
+class MapFragment : Fragment() {
 
     private lateinit var mapView: MapView
     private lateinit var mapLibreMap: MapLibreMap
@@ -87,6 +92,35 @@ class HomeFragment : Fragment() {
                     .snippet("This is your current location")
 
                 mapLibreMap.addMarker(marker)
+            }
+        }
+    }
+
+    private fun setGardensLocation(callback: DataCallback<List<Garden>>) {
+        var gardens: List<Garden>
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                gardens = RetrofitInstance.api.getGardens() // Directly returns the list
+                gardens.let {
+                    callback.onSuccess(it)  // Notify success with the data
+                }
+                Log.d("GardenApp", "Gardens received: $gardens")
+
+                // Switch to the main thread to update the UI (add markers)
+                withContext(Dispatchers.Main) {
+                    for (garden in gardens) {
+                        val gardenLocation = LatLng(garden.latitude, garden.longitude)
+
+                        val marker = MarkerOptions()
+                            .position(gardenLocation)
+                            .title(garden.name)
+                            .snippet(garden.description)
+
+                        mapLibreMap.addMarker(marker)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("GardenApp", "Error: ${e.message}")
             }
         }
     }
